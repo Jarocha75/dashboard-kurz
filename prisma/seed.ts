@@ -1,5 +1,4 @@
 import 'dotenv/config'
-import { Pool } from 'pg'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '@prisma/client'
 import { questions as q1 } from '../data/testy/s/sukromna-bezpecnost-okruh-1'
@@ -21,8 +20,7 @@ import { questions as qPOkruh2 } from '../data/testy/p/okruh-2'
 import { questions as qPOkruh3 } from '../data/testy/p/okruh-3'
 import { questions as qPOkruh4 } from '../data/testy/p/okruh-4'
 
-const pool = new Pool({ connectionString: process.env.DIRECT_URL })
-const adapter = new PrismaPg(pool)
+const adapter = new PrismaPg({ connectionString: process.env.DIRECT_URL })
 const prisma = new PrismaClient({ adapter })
 
 type Answer = 'A' | 'B' | 'C'
