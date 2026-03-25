@@ -1,0 +1,160 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+model Organization {
+  id            String    @id @default(uuid())
+  name          String    
+  slug          String    @unique 
+  logoUrl       String?   
+  subscription  String    @default("BASIC") 
+  createdAt     DateTime  @default(now())
+
+  users         User[]
+  courses       Course[]
+}
+
+
+model User {
+  id               String      @id @default(uuid())
+  email            String      @unique
+  name             String?
+  password         String?
+  role             Role        @default(USER) 
+  status           UserStatus  @default(PENDING)
+  createdAt        DateTime    @default(now())
+  
+  organization     Organization @relation(fields: [organizationId], references: [id])
+  organizationId   String
+
+  progresses       Progress[]
+  results          TestResult[]
+  enrollments      Enrollment[]
+}
+
+
+model Course {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  type        CourseType
+  createdAt   DateTime @default(now())
+  
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  organizationId String?
+
+  lessons     Lesson[]
+  tests       Test[]
+  enrollments Enrollment[]
+}
+
+model Enrollment {
+  id        String    @id @default(uuid())
+  createdAt DateTime  @default(now())
+  paidAt    DateTime?
+  stripePaymentIntentId String?
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  course   Course @relation(fields: [courseId], references: [id])
+  courseId String
+
+  @@unique([userId, courseId])
+}
+
+model Lesson {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  outline   Json?    
+  duration  Int?     
+  videoUrl  String?
+  order     Int
+
+  course   Course @relation(fields: [courseId], references: [id])
+  courseId String
+
+  progresses Progress[]
+}
+
+model Test {
+  id        String   @id @default(uuid())
+  title     String
+  passScore Int      @default(75) 
+  course    Course   @relation(fields: [courseId], references: [id])
+  courseId  String
+
+  questions Question[]
+  results   TestResult[]
+}
+
+model Question {
+  id        String   @id @default(uuid())
+  text      String
+  image     String?  
+  test      Test     @relation(fields: [testId], references: [id])
+  testId    String
+  answers   Answer[]
+}
+
+model Answer {
+  id         String   @id @default(uuid())
+  text       String
+  isCorrect  Boolean
+  question   Question @relation(fields: [questionId], references: [id])
+  questionId String
+}
+
+model TestResult {
+  id        String   @id @default(uuid())
+  score     Int
+  passed    Boolean
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+
+  test      Test     @relation(fields: [testId], references: [id])
+  testId    String
+}
+
+model Progress {
+  id        String   @id @default(uuid())
+  completed Boolean  @default(false)
+
+  user   User @relation(fields: [userId], references: [id])
+  userId String
+
+  lesson   Lesson @relation(fields: [lessonId], references: [id])
+  lessonId String
+
+  @@unique([userId, lessonId])
+}
+
+enum Role {
+  SUPER_ADMIN  
+  ORG_ADMIN    
+  USER         
+}
+
+enum UserStatus {
+  PENDING 
+  ACTIVE 
+}
+
+enum CourseType {
+  S
+  P
+}
