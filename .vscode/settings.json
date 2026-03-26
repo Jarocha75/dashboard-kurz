@@ -1,3 +1,10 @@
 {
-  "postman.settings.dotenv-detection-notification-visibility": false
+  "postman.settings.dotenv-detection-notification-visibility": false,
+  "css.lint.unknownAtRules": "ignore",
+  "editor.snippetSuggestions": "top",
+  "editor.tabCompletion": "on",
+  "tailwindCSS.includeLanguages": {
+    "typescript": "javascript",
+    "typescriptreact": "javascriptreact"
+  }
 }
